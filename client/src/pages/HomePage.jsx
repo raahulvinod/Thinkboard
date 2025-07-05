@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
-
+import { useState } from "react";
 import Navbar from "../components/Navbar";
 import RateLimitedUI from "../components/RateLimitedUI";
-
+import { useEffect } from "react";
+import api from "../lib/axios";
 import toast from "react-hot-toast";
 import NoteCard from "../components/NoteCard";
-import api from "../lib/axios";
 import NotesNotFound from "../components/NotesNotFound";
 
-const Home = () => {
+const HomePage = () => {
   const [isRateLimited, setIsRateLimited] = useState(false);
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,11 +20,12 @@ const Home = () => {
         setNotes(data);
         setIsRateLimited(false);
       } catch (error) {
-        console.error("Error fetching notes", error);
+        console.log("Error fetching notes");
+
         if (error.response?.status === 429) {
           setIsRateLimited(true);
         } else {
-          toast.error("Failed to fetch notes");
+          toast.error("Failed to load notes");
         }
       } finally {
         setLoading(false);
@@ -38,6 +38,7 @@ const Home = () => {
   return (
     <div className="min-h-screen">
       <Navbar />
+
       {isRateLimited && <RateLimitedUI />}
 
       <div className="max-w-7xl mx-auto p-4 mt-6">
@@ -58,5 +59,4 @@ const Home = () => {
     </div>
   );
 };
-
-export default Home;
+export default HomePage;

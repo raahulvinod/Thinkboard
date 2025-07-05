@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
 import api from "../lib/axios";
 
-const Create = () => {
+const CreatePage = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,21 +14,22 @@ const Create = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!title.trim() || !content.trim())
-      return toast.error("All fields are required");
+    if (!title.trim() || !content.trim()) {
+      toast.error("All fields are required");
+      return;
+    }
 
     setLoading(true);
-
     try {
       await api.post("/notes", {
         title,
         content,
       });
 
-      toast.success("Note created successfully");
+      toast.success("Note created successfully!");
       navigate("/");
     } catch (error) {
-      console.log(error);
+      console.log("Error creating note", error);
       if (error.response.status === 429) {
         toast.error("Slow down! You're creating notes too fast", {
           duration: 4000,
@@ -41,6 +42,7 @@ const Create = () => {
       setLoading(false);
     }
   };
+
   return (
     <div className="min-h-screen bg-base-200">
       <div className="container mx-auto px-4 py-8">
@@ -80,11 +82,7 @@ const Create = () => {
                 </div>
 
                 <div className="card-actions justify-end">
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={loading}
-                  >
+                  <button type="submit" className="btn btn-primary" disabled={loading}>
                     {loading ? "Creating..." : "Create Note"}
                   </button>
                 </div>
@@ -96,5 +94,4 @@ const Create = () => {
     </div>
   );
 };
-
-export default Create;
+export default CreatePage;

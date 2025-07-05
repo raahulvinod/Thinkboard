@@ -1,33 +1,47 @@
-import { useEffect, useState } from "react";
-import { data, Link, useNavigate, useParams } from "react-router";
+import { useEffect } from "react";
+import { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router";
 import api from "../lib/axios";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon, LoaderIcon, Trash2Icon } from "lucide-react";
 
-const NoteDetail = () => {
-  const [note, setNote] = useState([]);
+const NoteDetailPage = () => {
+  const [note, setNote] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   const navigate = useNavigate();
+
   const { id } = useParams();
 
   useEffect(() => {
-    const fetchNotes = async () => {
-      setLoading(true);
+    const fetchNote = async () => {
       try {
         const { data } = await api.get(`/notes/${id}`);
         setNote(data);
       } catch (error) {
-        console.log(error);
+        console.log("Error in fetching note", error);
         toast.error("Failed to fetch the note");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchNotes();
+    fetchNote();
   }, [id]);
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this note?")) return;
+
+    try {
+      await api.delete(`/notes/${id}`);
+      toast.success("Note deleted");
+      navigate("/");
+    } catch (error) {
+      console.log("Error deleting the note:", error);
+      toast.error("Failed to delete note");
+    }
+  };
 
   const handleSave = async () => {
     if (!note.title.trim() || !note.content.trim()) {
@@ -42,23 +56,10 @@ const NoteDetail = () => {
       toast.success("Note updated successfully");
       navigate("/");
     } catch (error) {
-      console.log(error);
-      toast.error("Error updating notes");
+      console.log("Error saving the note:", error);
+      toast.error("Failed to update note");
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this note?")) return;
-
-    try {
-      await api.delete(`/notes/${id}`);
-      toast.success("Note deleted successfully");
-      navigate("/");
-    } catch (error) {
-      console.log("Error deleting the note:", error);
-      toast.error("Failed to delete note");
     }
   };
 
@@ -69,6 +70,7 @@ const NoteDetail = () => {
       </div>
     );
   }
+
   return (
     <div className="min-h-screen bg-base-200">
       <div className="container mx-auto px-4 py-8">
@@ -132,5 +134,4 @@ const NoteDetail = () => {
     </div>
   );
 };
-
-export default NoteDetail;
+export default NoteDetailPage;
